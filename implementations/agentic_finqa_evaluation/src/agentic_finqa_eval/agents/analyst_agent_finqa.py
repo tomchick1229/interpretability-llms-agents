@@ -15,6 +15,7 @@ from crewai import LLM, Agent, Crew, Task
 # from ..datasets.perceived_sample import PerceivedSample
 from ..langfuse_integration.tracing import close_span, open_llm_span
 # from ..tools.vision_qa_tool import VisionQATool
+from ..tools.math_ops_tool import MathOpsTool
 from ..utils.json_strict import parse_strict
 
 ANALYST_PROMPT_PATH = Path(__file__).parent / "prompts" / "analyst_finqa.txt"
@@ -161,6 +162,9 @@ class AnalystAgent:
         tool_traces : list of dict
             A log of tool interactions during the run.
         """
+        tool = MathOpsTool(
+            lf_trace=lf_trace,
+        )
         llm = _build_llm(self.agent_backend, self.agent_model, self.agent_api_key)
         task_description = build_analyst_task_description(sample, plan)
         analyst_span = open_llm_span(
@@ -182,7 +186,7 @@ class AnalystAgent:
             role="Financial Analyst Agent",
             goal=(
                 "Answer questions from financial data that includes pre-text, a table, post-text and a question on that data"
-                "then output strict JSON with 'answer' and 'explanation'."
+                "then output strict JSON with 'answer' and 'explanation'. Use math_ops_tool whenever calculation is needed."
             ),
             backstory=(
                 "You are a financial analysis agent. You carefully review financial data that includes pre-text, a table, post-text and a question on that data"
@@ -190,6 +194,7 @@ class AnalystAgent:
                 "You follow inspection plans provided to you step by step and never hallucinate."
             ),
             llm=llm,
+            tools=[tool],
             verbose=False,
             allow_delegation=False,
             max_iter=3,  # limit iterations to prevent runaway tool calls
@@ -207,6 +212,8 @@ class AnalystAgent:
         raw_text: str = getattr(result, "raw", None) or str(result)
         parsed, parse_ok = parse_strict(raw_text, required_keys=ANALYST_REQUIRED_KEYS)
 
+        tool_traces = tool.pop_traces()
+
         close_span(analyst_span, output=parsed if parsed else {"parse_error": True})
 
-        return task_description, parsed, not parse_ok, raw_text
+        return task_description, parsed, not parse_ok, raw_text, tool_traces
