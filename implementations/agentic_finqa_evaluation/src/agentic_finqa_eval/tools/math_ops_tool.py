@@ -18,7 +18,7 @@ from google import genai
 from openai import OpenAI
 from pydantic import BaseModel, Field, PrivateAttr
 
-from ..langfuse_integration.tracing import close_span, open_llm_span
+from ..langfuse_integration.tracing import close_span, close_tool_call_span, open_llm_span, open_tool_call_span
 
 
 class MathOpsInput(BaseModel):
@@ -87,6 +87,13 @@ class MathOpsTool(BaseTool):
         float
             The result of the math operation
         """
+        # Open Langfuse span for this tool call
+        tool_span = open_tool_call_span(
+            self.lf_trace,
+            tool_name=self.name,
+            input_data={"a": a, "b": b, "math_ops": math_ops},
+        )
+
         start_ts = datetime.now(timezone.utc).isoformat()
         t0 = time.time()
 
@@ -114,6 +121,14 @@ class MathOpsTool(BaseTool):
         end_ts = datetime.now(timezone.utc).isoformat()
         elapsed_ms = (time.time() - t0) * 1000.0
 
+        # Close the tool call span and log results to Langfuse
+        close_tool_call_span(
+            tool_span,
+            output={"result": raw_text, "metadata": provider_meta},
+            error=error_str,
+        )
+
+        # Also store locally for backwards compatibility
         self._traces.append(
             {
                 "tool": "math_ops_tool",

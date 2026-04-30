@@ -258,3 +258,78 @@ def log_trace_scores(trace: object, scores: dict) -> None:
             with contextlib.suppress(Exception):
                 if hasattr(trace, "score_trace"):
                     trace.score_trace(name=name, value=float(value))  # type: ignore[union-attr]
+
+
+def open_tool_call_span(
+    trace: object,
+    tool_name: str,
+    input_data: dict,
+    metadata: Optional[dict] = None,
+) -> object:
+    """
+    Begin a Langfuse span observation for a tool call.
+
+    Parameters
+    ----------
+    trace : object
+        The parent trace or span.
+    tool_name : str
+        Name of the tool being called (e.g., "math_ops_tool").
+    input_data : dict
+        The input arguments to the tool.
+    metadata : dict, optional
+        Additional context keys (e.g., tool version, config).
+
+    Returns
+    -------
+    object or None
+        The active span object for the tool call.
+    """
+    if trace is None:
+        return None
+    span = getattr(trace, "_span", None)
+    if span is None:
+        return None
+    with contextlib.suppress(Exception):
+        return span.start_observation(  # type: ignore[union-attr]
+            name=tool_name,
+            as_type="span",
+            input=input_data,
+            metadata=metadata or {},
+        )
+    return None
+
+
+def close_tool_call_span(
+    span: object,
+    output: Optional[dict] = None,
+    error: Optional[str] = None,
+) -> None:
+    """
+    Log tool execution results and terminate the tool call span.
+
+    Parameters
+    ----------
+    span : object
+        The tool call span to close.
+    output : dict, optional
+        The tool output to log.
+    error : str, optional
+        An error message if the tool call failed.
+
+    Returns
+    -------
+    None
+    """
+    if span is None:
+        return
+    with contextlib.suppress(Exception):
+        update_kwargs: dict = {}
+        if output is not None:
+            update_kwargs["output"] = output
+        if error:
+            update_kwargs["level"] = "ERROR"
+            update_kwargs["status_message"] = error
+        if update_kwargs:
+            span.update(**update_kwargs)  # type: ignore[union-attr]
+        span.end()  # type: ignore[union-attr]
