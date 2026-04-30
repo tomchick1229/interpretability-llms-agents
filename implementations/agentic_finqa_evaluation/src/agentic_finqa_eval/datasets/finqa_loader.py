@@ -5,8 +5,8 @@ from pathlib import Path
 from typing import List, Optional
 
 def load_finqa(n: Optional[int] = None,
-    finqa_dir: str = "data/finqa",
-    finqa_filename: str = "dev_updated_with_answer.json",
+    finqa_dir: str = "FinQA_dataset",
+    finqa_filename: str = "dev_updated.json",
 ) -> List[dict]:
     """
     Simple loader for FinQA datasets.

@@ -222,7 +222,7 @@ def process_sample(  # noqa: PLR0915
                     analyst_parsed,
                     analyst_parse_error,
                     analyst_raw,
-                    # analyst_traces,
+                    analyst_traces,
                 ) = analyst_agent.run(
                     sample,
                     plan_parsed,
