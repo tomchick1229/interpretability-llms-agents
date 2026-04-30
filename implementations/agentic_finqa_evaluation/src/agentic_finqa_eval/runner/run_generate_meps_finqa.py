@@ -20,13 +20,13 @@ from typing import Optional
 
 from dotenv import load_dotenv
 
-from ..agents.planner_agent import PlannerAgent
-from ..agents.verifier_agent import VerifierAgent
+from ..agents.planner_agent_finqa import PlannerAgent
+from ..agents.verifier_agent_finqa import VerifierAgent
 from ..agents.analyst_agent_finqa import AnalystAgent
-# from ..datasets.chartqapro_loader import load_chartqapro
+from ..datasets.finqa_loader import load_finqa
 # from ..datasets.perceived_sample import PerceivedSample
 from ..langfuse_integration.client import get_client
-# from ..langfuse_integration.dataset import register_dataset
+from ..langfuse_integration.dataset import register_dataset
 from ..langfuse_integration.prompts import push_prompts
 from ..langfuse_integration.tracing_finqa import (
     log_trace_scores,
@@ -425,11 +425,11 @@ def main() -> None:  # noqa: PLR0912, PLR0915
     Path(out_dir).mkdir(parents=True, exist_ok=True)
 
     print(f"Loading dataset  : {args.dataset} split={args.split} n={args.n}")
-    samples = load_chartqapro(
-        split=args.split,
+    samples = load_finqa(
+        # split=args.split,
         n=args.n,
-        image_dir=args.image_dir,
-        cache_dir=args.cache_dir,
+        # image_dir=args.image_dir,
+        # cache_dir=args.cache_dir,
     )
     print(f"Samples loaded   : {len(samples)}")
     print(f"Config           : {args.config}  run_id={run_id}")
@@ -448,11 +448,11 @@ def main() -> None:  # noqa: PLR0912, PLR0915
     # Build agents once — run() creates fresh Crew/Tool per call so this is thread-safe
     print("Initialising agents …")
     planner = PlannerAgent(backend=config["planner_backend"], model=config["planner_model"])
-    analyst_agent = analystAgent(
+    analyst_agent = AnalystAgent(
         agent_backend=config["planner_backend"],
         agent_model=config["planner_model"],
-        analyst_backend=config["analyst_backend"],
-        analyst_model=config["analyst_model"],
+        # analyst_backend=config["analyst_backend"],
+        # analyst_model=config["analyst_model"],
     )
     verifier: Optional[VerifierAgent] = None
     if not args.no_verifier:
