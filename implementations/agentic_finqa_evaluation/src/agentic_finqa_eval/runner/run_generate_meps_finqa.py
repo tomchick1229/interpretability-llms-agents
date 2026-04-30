@@ -66,21 +66,21 @@ BACKEND_CONFIGS: dict = {
     },
     "gemini_gemini": {
         "planner_backend": "gemini",
-        "planner_model": "gemini-2.5-flash-lite",
+        "planner_model": "gemini-2.5-flash",
         "analyst_backend": "gemini",
-        "analyst_model": "gemini-2.5-flash-lite",
+        "analyst_model": "gemini-2.5-flash",
         "judge_backend": "gemini",
     },
     "openai_gemini": {
         "planner_backend": "openai",
         "planner_model": "gpt-4o",
         "analyst_backend": "gemini",
-        "analyst_model": "gemini-2.5-flash-lite",
+        "analyst_model": "gemini-2.5-flash",
         "judge_backend": "openai",
     },
     "gemini_openai": {
         "planner_backend": "gemini",
-        "planner_model": "gemini-2.5-flash-lite",
+        "planner_model": "gemini-2.5-flash",
         "analyst_backend": "openai",
         "analyst_model": "gpt-4o",
         "judge_backend": "gemini",
@@ -159,6 +159,7 @@ def process_sample(  # noqa: PLR0915
         pre_text=sample['pre_text'],
         table = sample['table'],
         post_text=sample['post_text'],
+        expected_answer=sample.get("expected_answer", ""),
         config_name=config_name,
         run_id=run_id,
     ) as lf_trace:
@@ -290,6 +291,7 @@ def process_sample(  # noqa: PLR0915
                 table=sample["table"],
                 post_text=sample["post_text"],
                 question=sample["question"],
+                expected_answer=sample.get("expected_answer", ""),
                 # metadata=sample["metadata"] if "metadata" in sample else {},
             ),
             plan=MEPPlan(

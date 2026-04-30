@@ -84,6 +84,7 @@ def sample_trace(
     pre_text: str,
     table: str,
     post_text: str,
+    expected_answer: str,
     config_name: str,
     run_id: str,
     project_name: str = "FinQA_eval",
@@ -105,6 +106,8 @@ def sample_trace(
         The table associated with the question.
     post_text : str
         The post-text for the question.
+    expected_answer : str
+        The expected answer for the question.
     config_name : str
         The evaluation configuration used.
     run_id : str
@@ -126,7 +129,7 @@ def sample_trace(
         client.start_as_current_observation(  # type: ignore[union-attr]
             name=f"chartqapro/{sample_id}",
             as_type="span",
-            input={"question": question, "pre_text": pre_text, "table": table, "post_text": post_text},
+            input={"question": question, "pre_text": pre_text, "table": table, "post_text": post_text, "expected_answer": expected_answer},
             metadata={
                 "run_id": run_id,
                 "config": config_name
