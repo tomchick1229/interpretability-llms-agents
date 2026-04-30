@@ -159,6 +159,7 @@ def process_sample(  # noqa: PLR0915
         pre_text=sample['pre_text'],
         table = sample['table'],
         post_text=sample['post_text'],
+        expected_answer=sample.get("expected_answer", ""),
         config_name=config_name,
         run_id=run_id,
     ) as lf_trace:
@@ -290,6 +291,7 @@ def process_sample(  # noqa: PLR0915
                 table=sample["table"],
                 post_text=sample["post_text"],
                 question=sample["question"],
+                expected_answer=sample.get("expected_answer", ""),
                 # metadata=sample["metadata"] if "metadata" in sample else {},
             ),
             plan=MEPPlan(

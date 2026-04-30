@@ -39,7 +39,7 @@ class MEPSample:
     post_text: str
     question: str
     # question_type: str
-    # expected_output: str
+    expected_answer: str
     # image_ref: ImageRef
     # metadata: Dict[str, Any] = field(default_factory=dict)
 

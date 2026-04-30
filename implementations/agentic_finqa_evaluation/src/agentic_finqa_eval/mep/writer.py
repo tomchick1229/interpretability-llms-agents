@@ -24,7 +24,7 @@ def read_mep(path: str) -> dict:
 
 def iter_meps(mep_dir: str) -> Iterator[dict]:
     """Yield all MEP dicts from a directory, sorted by filename."""
-    for p in sorted(Path(mep_dir).glob("*.json")):
+    for p in sorted(Path(mep_dir).glob("**/*.json")):
         try:
             yield read_mep(str(p))
         except Exception as e:
